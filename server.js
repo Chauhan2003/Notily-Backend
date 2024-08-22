@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 dotenv.config();
 
-import authRouter from "./routes/user.route.js";
+import userRouter from "./routes/user.route.js";
 import noteRouter from "./routes/note.route.js";
 
 mongoose
@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use(cors({ origin: ["http://localhost:5173"], credentials: true }));
 app.use(morgan("dev"));
 
-app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 app.use("/api/note", noteRouter);
 
 app.listen(process.env.PORT || 8000, () => {

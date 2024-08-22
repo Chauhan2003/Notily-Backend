@@ -4,7 +4,7 @@ import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export const signup = async (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { fullName, email, password } = req.body;
 
   try {
     const isValidUser = await User.findOne({ email });
@@ -16,7 +16,7 @@ export const signup = async (req, res, next) => {
     const hashedPassword = bcryptjs.hashSync(password, 10);
 
     const newUser = new User({
-      username,
+      fullName,
       email,
       password: hashedPassword,
     });
@@ -48,15 +48,25 @@ export const signin = async (req, res, next) => {
       return next(errorHandler(401, "Invalid email or password"));
     }
 
-    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "2d",
+    });
 
     const { password: pass, ...rest } = validUser._doc;
 
-    res.cookie("access_token", token, { httpOnly: true }).status(200).json({
-      success: true,
-      message: "Login Successful!",
-      rest,
-    });
+    res
+      .cookie("access_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 2 * 24 * 60 * 60 * 1000,
+      })
+      .status(200)
+      .json({
+        success: true,
+        message: "Login Successful!",
+        user: rest,
+      });
   } catch (error) {
     next(error);
   }

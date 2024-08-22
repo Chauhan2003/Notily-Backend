@@ -125,7 +125,7 @@ export const updateNotePinned = async (req, res, next) => {
       return next(errorHandler(404, "Note not found!"));
     }
 
-    if (req.user.id !== note.userId) {
+    if (req.user.id != note.userId) {
       return next(errorHandler(401, "You can only update your own note!"));
     }
 
